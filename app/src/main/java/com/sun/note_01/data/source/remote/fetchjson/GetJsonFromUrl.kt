@@ -3,6 +3,7 @@ package com.sun.note_01.data.source.remote.fetchjson
 import android.os.AsyncTask
 import com.sun.note_01.data.source.remote.OnFetchDataJsonListener
 import com.sun.note_01.untils.Constant
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.*
 import java.net.HttpURLConnection
@@ -13,7 +14,6 @@ class GetJsonFromUrl<T>(
     private val listener: OnFetchDataJsonListener<T>,
     private val keyEntity: String
 ) : AsyncTask<String?, Void?, DataResponse?>() {
-
     private var exception: Exception? = null
 
     override fun doInBackground(vararg params: String?): DataResponse? {
@@ -70,11 +70,18 @@ class GetJsonFromUrl<T>(
         when (dataResponse?.dataType) {
             DataTypeResponse.Login.name, DataTypeResponse.Register.name -> when {
                 dataResponse.data.isEmpty() -> listener.onError(exception)
-                dataResponse.data.toInt() == Constant.RESPONSE_FAILED -> listener.onError(exception)
+                dataResponse.data.toInt() == Constant.RESPONSE_FAILED -> listener.onError(
+                    exception
+                )
                 dataResponse.data.toInt() != Constant.RESPONSE_FAILED -> listener.onSuccess(
                     dataResponse.data.toInt() as T
                 )
             }
+            DataTypeResponse.Default.name ->
+                if (dataResponse.data.isNotEmpty()) {
+                    val jsonArray = JSONArray(dataResponse.data)
+                    listener.onSuccess(ParseDataWithJson().parseJsonToData(jsonArray, keyEntity) as T)
+                } else listener.onError(exception)
         }
     }
 
@@ -89,7 +96,7 @@ class GetJsonFromUrl<T>(
 }
 
 enum class DataTypeResponse(private val dataType: String) {
-    Login("Login"), Register("Register")
+    Login("Login"), Register("Register"), Default("Default")
 }
 
 data class DataResponse(val data: String, val dataType: String)

@@ -9,7 +9,6 @@ interface RegisterContract {
     }
 
     interface View {
-
         fun onRegisterSuccess()
         fun onError(exception: Exception?)
         fun onErrorValidate()

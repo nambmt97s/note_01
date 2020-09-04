@@ -8,9 +8,15 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.sun.note_01.R
+import com.sun.note_01.data.source.CategoryRepository
+import com.sun.note_01.data.source.NoteRepository
 import com.sun.note_01.data.source.UserRepository
+import com.sun.note_01.data.source.local.CategoryLocalDataSource
+import com.sun.note_01.data.source.local.NoteLocalDataSource
 import com.sun.note_01.data.source.local.UserLocalDataSource
 import com.sun.note_01.data.source.local.prefs.AppPreferencesHelper
+import com.sun.note_01.data.source.remote.CategoryRemoteDataSource
+import com.sun.note_01.data.source.remote.NoteRemoteDataSource
 import com.sun.note_01.data.source.remote.UserRemoteDataSource
 import kotlinx.android.synthetic.main.fragment_login_child.*
 
@@ -46,6 +52,12 @@ class LoginFragment : Fragment(), LoginContract.View {
                 UserRepository.getInstance(
                     UserLocalDataSource.getInstance(AppPreferencesHelper.getInstance(it)),
                     UserRemoteDataSource.INSTANCE
+                ), NoteRepository.getInstance(
+                    NoteLocalDataSource.getInstance(),
+                    NoteRemoteDataSource.getInstance(AppPreferencesHelper.getInstance(it))
+                ), CategoryRepository.getInstance(
+                    CategoryLocalDataSource.getInstance(),
+                    CategoryRemoteDataSource.getInstance(AppPreferencesHelper.getInstance(it))
                 ),
                 this
             )
